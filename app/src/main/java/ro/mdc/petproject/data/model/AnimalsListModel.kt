@@ -14,25 +14,25 @@ data class AnimalModel(
     val id: Int,
     @Json(name = "organization_id")
     val organizationId: String,
-    val url: String,
-    val type: String,
-    val species: String,
+    val url: String?,
+    val type: String?,
+    val species: String?,
     val photos: List<PhotoModel>,
     val breeds: BreedsModel,
-    val age: String,
-    val gender: String,
-    val size: String,
+    val age: String?,
+    val gender: String?,
+    val size: String?,
     val coat: String?,
-    val tags: List<String>,
-    val name: String,
+    val tags: List<String> = emptyList(),
+    val name: String?,
     val description: String?,
     @Json(name = "published_at")
-    val publishedAt: String,
+    val publishedAt: String?,
 )
 
 @JsonClass(generateAdapter = true)
 data class BreedsModel(
-    val primary: String,
+    val primary: String?,
     val secondary: String?,
     val mixed: Boolean,
     val unknown: Boolean,
@@ -40,5 +40,7 @@ data class BreedsModel(
 
 @JsonClass(generateAdapter = true)
 data class PhotoModel(
+    val small: String,
     val medium: String,
+    val large: String,
 )

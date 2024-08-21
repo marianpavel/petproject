@@ -26,6 +26,6 @@ interface PetFinderService {
     fun getAnimals(
         @Header("Authorization") authorization: String = LocalRepository.token,
         @Query("page") page: Int,
-        @Query("limit") limit: Int = 10
+        @Query("limit") limit: Int = 30
     ): Single<AnimalsListModel>
 }

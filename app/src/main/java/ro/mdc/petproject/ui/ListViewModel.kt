@@ -1,29 +1,32 @@
 package ro.mdc.petproject.ui
 
-import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.launch
 import ro.mdc.petproject.data.model.AnimalModel
+import ro.mdc.petproject.data.model.AnimalsListModel
+import ro.mdc.petproject.data.model.PaginationModel
 import ro.mdc.petproject.data.remote.PetFinderService
-import timber.log.Timber
 import javax.inject.Inject
 
-data class ListUiState(
-    val animals: List<AnimalModel> = emptyList(),
-)
+open class ListUiState {
+    object Loading : ListUiState()
+    object Error : ListUiState()
+    data class Success(
+        val animals: List<AnimalModel>,
+        val pagination: PaginationModel?
+    ) : ListUiState()
+}
 
 @HiltViewModel
 class ListViewModel @Inject constructor(
-    petFinderService: PetFinderService
+    private val petFinderService: PetFinderService,
 ) : ViewModel() {
 
     var uiState by mutableStateOf(ListUiState())
@@ -32,12 +35,47 @@ class ListViewModel @Inject constructor(
     private val compositeDisposable = CompositeDisposable()
 
     init {
-        val disposable = petFinderService.getAnimals(page = 1)
+        loadAnimals()
+    }
+
+    fun loadNextPage() {
+        if (uiState is ListUiState.Success) {
+            (uiState as ListUiState.Success).pagination?.let { pagination ->
+                (pagination.currentPage + 1).takeIf {
+                    pagination.currentPage < pagination.totalPages
+                }?.run {
+                    loadAnimals(page = this)
+                }
+            }
+        }
+    }
+
+    private fun loadAnimals(page: Int = 1) {
+        val disposable = petFinderService.getAnimals(page = page)
             .subscribeOn(Schedulers.newThread())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { response, _ ->
-                if (response != null) {
-                    uiState = uiState.copy(animals = response.animals)
+            .doOnSubscribe { uiState = ListUiState.Loading }
+            .subscribe { response, error ->
+                when {
+                    response != null -> {
+                        val animals = if (uiState is ListUiState.Success) {
+                            (uiState as ListUiState.Success).animals + response.animals
+                        } else {
+                            response.animals
+                        }
+                        uiState = ListUiState.Success(
+                            animals = animals,
+                            pagination = response.pagination
+                        )
+                    }
+
+                    error != null -> {
+                        uiState = ListUiState.Error
+                    }
+
+                    else -> {
+                        uiState = ListUiState.Loading
+                    }
                 }
             }
 
