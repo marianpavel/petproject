@@ -24,6 +24,7 @@ data class AnimalModel(
     val size: String?,
     val coat: String?,
     val tags: List<String> = emptyList(),
+    val status: String?,
     val name: String?,
     val description: String?,
     @Json(name = "published_at")

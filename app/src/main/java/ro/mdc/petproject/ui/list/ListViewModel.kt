@@ -1,5 +1,6 @@
-package ro.mdc.petproject.ui
+package ro.mdc.petproject.ui.list
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,9 +11,9 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.schedulers.Schedulers
 import ro.mdc.petproject.data.model.AnimalModel
-import ro.mdc.petproject.data.model.AnimalsListModel
 import ro.mdc.petproject.data.model.PaginationModel
 import ro.mdc.petproject.data.remote.PetFinderService
+import ro.mdc.petproject.domain.AnimalRepository
 import javax.inject.Inject
 
 open class ListUiState {
@@ -26,15 +27,17 @@ open class ListUiState {
 
 @HiltViewModel
 class ListViewModel @Inject constructor(
-    private val petFinderService: PetFinderService,
+    private val animalRepository: AnimalRepository,
 ) : ViewModel() {
 
     var uiState by mutableStateOf(ListUiState())
         private set
 
-    private val compositeDisposable = CompositeDisposable()
+    @VisibleForTesting
+    var compositeDisposable = CompositeDisposable()
 
     init {
+        uiState = ListUiState.Loading
         loadAnimals()
     }
 
@@ -51,10 +54,9 @@ class ListViewModel @Inject constructor(
     }
 
     private fun loadAnimals(page: Int = 1) {
-        val disposable = petFinderService.getAnimals(page = page)
-            .subscribeOn(Schedulers.newThread())
+        val disposable = animalRepository.getAnimals(page = page)
+            .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe { uiState = ListUiState.Loading }
             .subscribe { response, error ->
                 when {
                     response != null -> {
@@ -79,6 +81,9 @@ class ListViewModel @Inject constructor(
                 }
             }
 
+        if (compositeDisposable.isDisposed) {
+            compositeDisposable = CompositeDisposable()
+        }
         disposable.addTo(compositeDisposable)
     }
 

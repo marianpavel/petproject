@@ -14,6 +14,9 @@ import ro.mdc.petproject.data.model.AuthTokenModel
 
 interface PetFinderService {
 
+    /**
+     * TODO replace with local.properties
+     */
     @POST("oauth2/token")
     @FormUrlEncoded
     fun getAccessToken(
@@ -26,6 +29,6 @@ interface PetFinderService {
     fun getAnimals(
         @Header("Authorization") authorization: String = LocalRepository.token,
         @Query("page") page: Int,
-        @Query("limit") limit: Int = 30
+        @Query("limit") limit: Int = 20
     ): Single<AnimalsListModel>
 }

@@ -9,14 +9,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import ro.mdc.petproject.ui.ListRoute
-import ro.mdc.petproject.ui.ListScreen
+import ro.mdc.petproject.ui.list.ListDirections
+import ro.mdc.petproject.ui.list.ListRoute
 import ro.mdc.petproject.ui.theme.PetProjectTheme
+import ro.mdc.petproject.ui.utils.createNavGraph
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -24,14 +25,24 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val navController = rememberNavController()
+
             PetProjectTheme {
-                Scaffold(modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.background),
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = MaterialTheme.colorScheme.background),
                 ) { innerPadding ->
-                    ListRoute(
+
+                    NavHost(
+                        navController = navController,
+                        startDestination = ListDirections.root,
                         modifier = Modifier.padding(innerPadding),
-                    )
+                    ) {
+                        createNavGraph(
+                            navController = navController
+                        )
+                    }
                 }
             }
         }

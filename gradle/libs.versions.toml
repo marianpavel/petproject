@@ -27,6 +27,8 @@ rxandroid = "3.0.2"
 rxJava = "3.1.5"
 coil = "2.7.0"
 paging = "3.3.2"
+mockk = "1.13.12"
+testing = "2.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -72,6 +74,8 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 paging = { group = "androidx.paging", name = "paging-runtime", version.ref = "paging" }
 paging-rx = { group = "androidx.paging", name = "paging-rxjava3", version.ref = "paging" }
 paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "paging" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "testing" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
